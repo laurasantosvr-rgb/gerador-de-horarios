@@ -247,15 +247,15 @@ class ScheduleExporter:
         units = {
             "HM": {
                 "schedule": "09:00-17:00",
-                "color": "FFBF91",
+                "color": "F5A92A",
             },
             "B": {
                 "schedule": "09:00-17:00",
-                "color": "495BB3",
+                "color": "4929D9",
             },
             "JP": {
                 "schedule": "08:00-16:30",
-                "color": "A67C4B",
+                "color": "AD7F2F",
             },
             "AP": {
                 "schedule": "11:00-15:00",
@@ -263,7 +263,7 @@ class ScheduleExporter:
             },
             "Lavandaria": {
                 "schedule": "08:00-16:30",
-                "color": "F2C7F2",
+                "color": "FACAEF",
             },
         }
 
@@ -295,8 +295,8 @@ class ScheduleExporter:
 
         inactive_fill = PatternFill(
             fill_type="solid",
-            start_color="ED6868",   # vermelho claro
-            end_color="ED6868",
+            start_color="E02F2F",   # vermelho 
+            end_color="E02F2F",
         )
 
         for employee in hotel.employees.values():
@@ -540,8 +540,8 @@ class ScheduleExporter:
 
         ferias_fill = PatternFill(
             fill_type="solid",
-            start_color="FFFF9E",   # amarelo
-            end_color="FFFF9E",
+            start_color="FCFC44",   # amarelo
+            end_color="FCFC44",
         )
 
         for vacation in hotel.vacations:
