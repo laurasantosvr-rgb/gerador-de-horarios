@@ -7,13 +7,14 @@ class RestScorer:
     """
 
     UNIT_DISTRIBUTION_WEIGHT = 100000
+    WEEK_BALANCE_WEIGHT = 70000
     TOTAL_DISTRIBUTION_WEIGHT = 50000
     ROTATION_DISTRIBUTION_WEIGHT = 40000
+    HOLIDAY_OFF_FAIRNESS_WEIGHT = 30000
+    FRIDAY_WEIGHT = 25000
     WORKLOAD_WEIGHT = 100
     WEEKEND_WEIGHT = 50
     FAIRNESS_WEIGHT = 20
-    HOLIDAY_OFF_FAIRNESS_WEIGHT = 30000
-    WEEK_BALANCE_WEIGHT = 70000
 
     def score_pair(
         self,
@@ -51,6 +52,10 @@ class RestScorer:
         )
 
         score += self._weekend_score(
+            pair,
+        )
+
+        score += self._friday_score(
             pair,
         )
 
@@ -111,6 +116,10 @@ class RestScorer:
         )
 
         score += self._weekend_score(
+            days,
+        )
+
+        score += self._friday_score(
             days,
         )
 
@@ -502,3 +511,19 @@ class RestScorer:
             imbalance
             * self.WEEK_BALANCE_WEIGHT
         )
+
+    def _friday_score(
+        self,
+        days,
+    ):
+        """
+        Penaliza folgas que incluam sexta-feira.
+        """
+
+        score = 0
+
+        for day in days:
+            if day.weekday() == 4:   # sexta-feira
+                score += self.FRIDAY_WEIGHT
+
+        return score
