@@ -5,7 +5,8 @@ from src.services.schedule_exporter import ScheduleExporter
 from src.scheduler.monthly_scheduler import MonthlyScheduler
 from src.services.schedule_importer import ScheduleImporter
 from src.services.history_manager import HistoryManager
-
+from pathlib import Path
+import tempfile
 
 def gerar_horario(
     excel_file,
@@ -13,6 +14,19 @@ def gerar_horario(
     end_date,
     previous_schedule_file=None,
 ):
+    previous_schedule_path = None
+
+    if previous_schedule_file is not None:
+
+        temp = tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".xlsx"
+        )
+
+        temp.write(previous_schedule_file.getbuffer())
+        temp.close()
+
+        previous_schedule_path = temp.name
 
     data = ExcelReader(excel_file).load()
 
@@ -26,14 +40,14 @@ def gerar_horario(
     if previous_schedule_file is not None:
 
         previous_schedule = ScheduleImporter().load(
-            previous_schedule_file,
+            previous_schedule_path,
             hotel,
-        )
+    )
 
         history.update(
             previous_schedule,
             hotel,
-            previous_schedule_file,
+            previous_schedule_path,
         )
 
     scheduler = MonthlyScheduler()
