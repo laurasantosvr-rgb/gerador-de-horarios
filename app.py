@@ -242,12 +242,13 @@ if gerar:
 
         with open(resultado, "rb") as f:
 
+            nome_ficheiro = f"Horario_de_{data_inicio.strftime('%d-%m-%Y')}_a_{data_fim.strftime('%d-%m-%Y')}.xlsx"
+
             st.download_button(
-                "📥 Descarregar Horário",
-                data=f,
-                file_name="Horario.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                use_container_width=True,
+                label="📥 Descarregar Excel",
+                data=excel_bytes,
+                file_name=nome_ficheiro,
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
     except Exception as e:
