@@ -220,8 +220,10 @@ class ScheduleExporter:
 
                 cell.value = employee.nome
 
-                cell.fill = self._unit_fill(
-                    employee.unidade_principal,
+                cell.fill = PatternFill(
+                    fill_type="solid",
+                    start_color="FFFFFF",
+                    end_color="FFFFFF",
                 )
 
                 cell.font = Font(
@@ -237,32 +239,40 @@ class ScheduleExporter:
 
         return employee_rows
     
-    def _unit_fill(
-        self,
-        unit_name,
-    ):
+    def _unit_fill(self, unit_name):
         """
-    Devolve a cor associada à unidade.
-    """
+        Devolve o horário e a cor associados à unidade.
+        """
 
-        colors = {
-            "HM": "DDEBF7",   # azul claro
-            "B": "E2F0D9",    # verde claro
-            "JP": "F4CCCC",    # vermelho claro
-            "AP": "FCE4D6",    # laranja claro
-            "Lavandaria": "E4D7F5",    # lilás claro
+        units = {
+            "HM": {
+                "schedule": "09:00-17:00",
+                "color": "FFBF91",
+            },
+            "B": {
+                "schedule": "09:00-17:00",
+                "color": "495BB3",
+            },
+            "JP": {
+                "schedule": "08:00-16:30",
+                "color": "A67C4B",
+            },
+            "AP": {
+                "schedule": "11:00-15:00",
+                "color": "CFF2FF",
+            },
+            "Lavandaria": {
+                "schedule": "08:00-16:30",
+                "color": "F2C7F2",
+            },
         }
 
-        return PatternFill(
-            fill_type="solid",
-            start_color=colors.get(
-                unit_name,
-                "FFFFFF",
-            ),
-            end_color=colors.get(
-                unit_name,
-                "FFFFFF",
-            ),
+        return units.get(
+        unit_name,
+            {
+                "schedule": unit_name,
+                "color": "FFFFFF",
+            },
         )
     
     def _fill_schedule(
@@ -283,13 +293,55 @@ class ScheduleExporter:
         print(schedule.end_date)
         print("=" * 50)
 
+        inactive_fill = PatternFill(
+            fill_type="solid",
+            start_color="ED6868",   # vermelho claro
+            end_color="ED6868",
+        )
+
+        for employee in hotel.employees.values():
+
+            if employee.ativo:
+                continue
+
+            row = employee_rows[employee.id]
+
+            for column in day_columns.values():
+
+                cell = sheet.cell(
+                    row=row,
+                    column=column,
+                )
+
+                cell.value = "Baixa"
+
+                cell.fill = inactive_fill
+
+                cell.alignment = Alignment(
+                    horizontal="center",
+                    vertical="center",
+                )
+
+                cell.font = Font(
+                    bold=True,
+                )
+
     # ==========================
     # Trabalho
     # ==========================
+        assignments_count = {}
+
+        for assignment in schedule.assignments:
+            key = (assignment.employee_id, assignment.day)
+
+            assignments_count[key] = assignments_count.get(key, 0) + 1
 
         for assignment in schedule.assignments:
 
             employee = hotel.employees[assignment.employee_id]
+
+            if not employee.ativo:
+                continue
 
             row = employee_rows[
                 assignment.employee_id
@@ -304,11 +356,19 @@ class ScheduleExporter:
                 column=column,
             )
 
-
-            text = (
-                f"{assignment.unit}"
+            key = (
+                assignment.employee_id,
+                assignment.day,
             )
 
+            info = self._unit_fill(
+                assignment.unit,
+            )
+
+            if assignments_count[key] == 1:
+                text = info["schedule"]
+            else:
+                text = assignment.unit
 
             if cell.value:
 
@@ -317,6 +377,22 @@ class ScheduleExporter:
             else:
 
                 cell.value = text
+
+            if assignments_count[key] == 1:
+
+                cell.fill = PatternFill(
+                    fill_type="solid",
+                    start_color=info["color"],
+                    end_color=info["color"],
+                )
+
+            else:
+
+                cell.fill = PatternFill(
+                    fill_type="solid",
+                    start_color="EAD7C0",   # beje
+                    end_color="EAD7C0",
+                )
 
             cell.alignment = Alignment(
                 horizontal="center",
@@ -329,6 +405,11 @@ class ScheduleExporter:
         # ==========================
 
         for day_off in schedule.day_offs:
+
+            employee = hotel.employees[day_off.employee_id]
+
+            if not employee.ativo:
+                continue
 
             row = employee_rows[
                 day_off.employee_id
@@ -364,8 +445,8 @@ class ScheduleExporter:
 
             cell.fill = PatternFill(
                 fill_type="solid",
-                start_color="FFF2CC",
-                end_color="FFF2CC",
+                start_color="B5B5B5",
+                end_color="B5B5B5",
             )
 
             cell.alignment = Alignment(
@@ -384,6 +465,11 @@ class ScheduleExporter:
             }
 
         for fixed_day in hotel.fixed_days_off:
+
+            employee = hotel.employees[fixed_day.employee_id]
+
+            if not employee.ativo:
+                continue
 
             row = employee_rows[
                 fixed_day.employee_id
@@ -406,8 +492,8 @@ class ScheduleExporter:
 
                 cell.fill = PatternFill(
                     fill_type="solid",
-                    start_color="FFF2CC",
-                    end_color="FFF2CC",
+                    start_color="B5B5B5",
+                    end_color="B5B5B5",
                 )
 
                 cell.alignment = Alignment(
@@ -421,6 +507,9 @@ class ScheduleExporter:
                 continue
 
             row = employee_rows[employee.id]
+
+            if not employee.ativo:
+                continue
 
             for day, column in day_columns.items():
 
@@ -436,8 +525,8 @@ class ScheduleExporter:
 
                 cell.fill = PatternFill(
                     fill_type="solid",
-                    start_color="FFF2CC",
-                    end_color="FFF2CC",
+                    start_color="B5B5B5",
+                    end_color="B5B5B5",
                 )
 
                 cell.alignment = Alignment(
@@ -451,11 +540,16 @@ class ScheduleExporter:
 
         ferias_fill = PatternFill(
             fill_type="solid",
-            start_color="FCE4EC",   # rosa bebé
-            end_color="FCE4EC",
+            start_color="FFFF9E",   # amarelo
+            end_color="FFFF9E",
         )
 
         for vacation in hotel.vacations:
+
+            employee = hotel.employees[vacation.colaborador_id]
+
+            if not employee.ativo:
+                continue
 
             row = employee_rows[vacation.colaborador_id]
 
