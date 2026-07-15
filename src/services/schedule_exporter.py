@@ -532,7 +532,51 @@ class ScheduleExporter:
                 cell.alignment = Alignment(
                     horizontal="center",
                     vertical="center",
-                )   
+                )
+        # ==========================
+        # Feriados
+        # ==========================
+
+        feriado_fill = PatternFill(
+            fill_type="solid",
+            start_color="FFFFFF",   # branco
+            end_color="FFFFFF",
+        )
+
+        for employee in hotel.employees.values():
+
+            if not employee.ativo:
+                continue
+
+            if employee.trabalha_feriados:
+                continue
+
+            row = employee_rows[employee.id]
+
+            for holiday in hotel.holidays:
+
+                if holiday.data not in day_columns:
+                    continue
+
+                column = day_columns[holiday.data]
+
+                cell = sheet.cell(
+                    row=row,
+                    column=column,
+                )
+
+                # Não substituir horários, folgas, férias ou baixa
+                if cell.value:
+                    continue
+
+                cell.value = "Feriado"
+
+                cell.fill = feriado_fill
+
+                cell.alignment = Alignment(
+                    horizontal="center",
+                    vertical="center",
+                )
 
         # ==========================
         # Férias
